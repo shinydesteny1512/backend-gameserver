@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Getter
 public class ItemEntity {
 
-  @MongoId private UUID uuid;
+  @MongoId private UUID itemId;
 
   private String itemName;
 

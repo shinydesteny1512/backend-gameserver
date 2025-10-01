@@ -13,12 +13,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class ItemService {
 
-  private final ItemMapper itemMapper = ItemMapper.INSTANCE;
+  private final ItemMapper itemMapper;
 
   private final ItemRepository itemRepository;
 
-  public ItemService(ItemRepository itemRepository) {
-    this.itemRepository = itemRepository;
+  public ItemService(ItemMapper itemMapper, ItemRepository itemRepository) {
+      this.itemMapper = itemMapper;
+      this.itemRepository = itemRepository;
   }
 
   public UUID createItem(ItemCreateRequestDTO itemCreateRequestDTO) {
@@ -28,7 +29,7 @@ public class ItemService {
     ItemEntity itemEntity = itemMapper.itemDTOToItem(itemDTO);
 
     itemRepository.save(itemEntity);
-    log.info("Item created with id: '{}'", itemEntity.getUuid().toString());
-    return itemEntity.getUuid();
+    log.info("Item created with id: '{}'", itemEntity.getItemId().toString());
+    return itemEntity.getItemId();
   }
 }
