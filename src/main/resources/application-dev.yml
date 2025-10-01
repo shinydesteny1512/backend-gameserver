@@ -5,3 +5,11 @@ spring:
     mongodb:
       uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_DB}.y9pcivx.mongodb.net/?retryWrites=true&w=majority&appName=gameserver-cluster0
       database: ${MONGO_DB}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
