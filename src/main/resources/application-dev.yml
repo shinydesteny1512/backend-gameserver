@@ -3,4 +3,5 @@ spring:
     name: backend-gameserver
   data:
     mongodb:
-      uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@gameserver-cluster0.y9pcivx.mongodb.net/?retryWrites=true&w=majority&appName=gameserver-cluster0
+      uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_DB}.y9pcivx.mongodb.net/?retryWrites=true&w=majority&appName=gameserver-cluster0
+      database: ${MONGO_DB}
