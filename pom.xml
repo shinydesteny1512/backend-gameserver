@@ -16,6 +16,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <maven.compiler.target>21</maven.compiler.target>
         <openapi-generator-maven-plugin.version>7.2.0</openapi-generator-maven-plugin.version>
     </properties>
 
