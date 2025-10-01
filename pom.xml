@@ -161,7 +161,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>api-spec/open-api-error-spec.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/api-spec/open-api-error-spec.yaml</inputSpec>
                         </configuration>
                     </execution>
 
@@ -171,7 +171,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>api-spec/open-api-item-spec.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/api-spec/open-api-item-spec.yaml</inputSpec>
                         </configuration>
                     </execution>
 

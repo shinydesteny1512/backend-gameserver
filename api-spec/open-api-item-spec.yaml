@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: Item API
   description: A simple API for managing items
@@ -241,39 +241,39 @@ components:
           type: string
           format: uuid
           description: Unique identifier of the item
-          examples: ["123e4567-e89b-12d3-a456-426614174000"]
+          example: ["123e4567-e89b-12d3-a456-426614174000"]
         name:
           type: string
           description: Name of the item
           minLength: 1
           maxLength: 255
-          examples: ["Magical Sword of the Church"]
+          example: ["Magical Sword of the Church"]
         description:
           type: string
           description: Description of the item
           maxLength: 255
-          examples: ["A Sword of a Church Fighter"]
+          example: ["A Sword of a Church Fighter"]
         category:
           type: string
           description: Category of the item
           enum: ["weapon", "armor", "accessories", "consumable", "other"]
-          examples: ["weapon"]
+          example: ["weapon"]
         price:
           type: number
           format: double
           description: Price of the item in gold
           minimum: 0
-          examples: [999]
+          example: [999]
         createdAt:
           type: string
           format: date-time
           description: Creation timestamp
-          examples: ["2024-01-15T10:30:00Z"]
+          example: ["2024-01-15T10:30:00Z"]
         updatedAt:
           type: string
           format: date-time
           description: Last update timestamp
-          examples: ["2024-01-15T10:30:00Z"]
+          example: ["2024-01-15T10:30:00Z"]
 
     ItemCreateRequest:
       type: object
@@ -288,23 +288,23 @@ components:
           description: Name of the item
           minLength: 1
           maxLength: 255
-          examples: ["Magical Sword of the Church"]
+          example: ["Magical Sword of the Church"]
         description:
           type: string
           description: Description of the item
           maxLength: 255
-          examples: ["A Sword of a Church Fighter"]
+          example: ["A Sword of a Church Fighter"]
         category:
           type: string
           description: Category of the item
           enum: ["weapon", "armor", "accessories", "consumable", "other"]
-          examples: ["weapon"]
+          example: ["weapon"]
         price:
           type: number
           format: double
           description: Price of the item in gold
           minimum: 0
-          examples: [999]
+          example: [999]
 
     Pagination:
       type: object
@@ -312,23 +312,23 @@ components:
         total:
           type: integer
           description: Total number of available items
-          examples: [150]
+          example: [150]
         limit:
           type: integer
           description: Maximum number of returned items
-          examples: [20]
+          example: [20]
         offset:
           type: integer
           description: Number of skipped items
-          examples: [0]
+          example: [0]
         hasNext:
           type: boolean
           description: Indicates if more items are available
-          examples: [true]
+          example: [true]
         hasPrevious:
           type: boolean
           description: Indicates if previous items are available
-          examples: [false]
+          example: [false]
 
 #  securitySchemes:
 #    bearerAuth:

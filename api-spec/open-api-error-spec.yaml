@@ -1,8 +1,10 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: Common Error Schema
   description: Reusable error schema for all APIs
   version: 1.0.0
+
+paths: {}
 
 components:
   schemas:
@@ -15,28 +17,35 @@ components:
         code:
           type: string
           description: Error code
-          examples: ["VALIDATION_ERROR", "NOT_FOUND", "UNAUTHORIZED", "INTERNAL_ERROR"]
+          example: [ "VALIDATION_ERROR", "NOT_FOUND", "UNAUTHORIZED", "INTERNAL_ERROR" ]
         message:
           type: string
           description: Error message
-          examples: ["The provided data is invalid"]
+          example: [ "The provided data is invalid" ]
         details:
           type: array
           items:
             type: string
           description: Detailed error information
-          examples: [["Name cannot be empty", "Price must be greater than 0"]]
+          example: [ [ "Name cannot be empty", "Price must be greater than 0" ] ]
         timestamp:
           type: string
           format: date-time
           description: Error timestamp
-          examples: ["2024-01-15T10:30:00Z"]
+          example: [ "2024-01-15T10:30:00Z" ]
         path:
           type: string
           description: API path where the error occurred
-          examples: ["/api/v1/items"]
+          example: [ "/api/v1/items" ]
         requestId:
           type: string
           format: uuid
           description: Unique request ID for debugging
-          examples: ["123e4567-e89b-12d3-a456-426614174000"]
+          example: [ "123e4567-e89b-12d3-a456-426614174000" ]
+      example:
+        code: "400"
+        message: "Invalid Request"
+        details: "Wrong Number"
+        path: "/api/v1/items"
+        requestId: "123e4567-e89b-12d3-a456-426614174000"
+        timestamp: "2024-01-15T10:30:00Z"
