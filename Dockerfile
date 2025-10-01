@@ -3,6 +3,7 @@ FROM maven:3.9.6-eclipse-temurin-17 AS builder
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
+COPY api-spec /app/api-spec
 RUN mvn clean package -DskipTests
 
 # Stage 2: Run the app
