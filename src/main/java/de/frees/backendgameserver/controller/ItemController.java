@@ -1,5 +1,6 @@
 package de.frees.backendgameserver.controller;
 
+import com.example.itemapi.api.ItemApi;
 import com.example.itemapi.api.ItemsApi;
 import com.example.itemapi.model.GetItems200ResponseDTO;
 import com.example.itemapi.model.ItemCreateRequestDTO;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-public class ItemController implements ItemsApi {
+public class ItemController implements ItemApi, ItemsApi {
 
   private final ItemService itemService;
 
@@ -44,10 +45,12 @@ public class ItemController implements ItemsApi {
 
   @Override
   public ResponseEntity<GetItems200ResponseDTO> getItems(
-      Optional<@Min(1) @Max(100) Integer> limit,
-      Optional<@Min(0) Integer> offset,
+      Optional<Integer> limit,
+      Optional<Integer> offset,
       Optional<String> category,
       Optional<String> search) {
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    return ResponseEntity
+            .status(HttpStatus.NOT_IMPLEMENTED)
+            .build();
   }
 }

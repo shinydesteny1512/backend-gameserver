@@ -18,15 +18,18 @@ public class ItemService {
   private final ItemRepository itemRepository;
 
   public ItemService(ItemMapper itemMapper, ItemRepository itemRepository) {
-      this.itemMapper = itemMapper;
-      this.itemRepository = itemRepository;
+    this.itemMapper = itemMapper;
+    this.itemRepository = itemRepository;
   }
 
   public UUID createItem(ItemCreateRequestDTO itemCreateRequestDTO) {
     log.info("Creating Item");
+    UUID uuid = UUID.randomUUID();
+
     ItemDTO itemDTO = itemMapper.itemToItemCreateRequestDTO(itemCreateRequestDTO);
 
     ItemEntity itemEntity = itemMapper.itemDTOToItem(itemDTO);
+    itemEntity.setItemId(uuid);
 
     itemRepository.save(itemEntity);
     log.info("Item created with id: '{}'", itemEntity.getItemId().toString());
