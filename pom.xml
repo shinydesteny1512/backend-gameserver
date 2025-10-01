@@ -10,26 +10,35 @@
     </parent>
     <groupId>de.frees</groupId>
     <artifactId>backend-gameserver</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>backend-gameserver</name>
     <description>backend-gameserver</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+
     <properties>
-        <java.version>25</java.version>
+        <java.version>21</java.version>
+        <openapi-generator-maven-plugin.version>7.2.0</openapi-generator-maven-plugin.version>
     </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.42</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -42,7 +51,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -50,14 +58,39 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!-- Spring Boot Starter Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <!-- Jackson for JSON processing -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.7</version>
+        </dependency>
+        <!-- Bean Validation API -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations-jakarta -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations-jakarta</artifactId>
+            <version>2.2.37</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
     </dependencies>
 
@@ -66,6 +99,83 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator-maven-plugin.version}</version>
+
+                <configuration>
+                    <!-- Generator to use -->
+                    <generatorName>spring</generatorName>
+                    <!-- API package name -->
+                    <apiPackage>com.example.itemapi.api</apiPackage>
+                    <!-- Model package name -->
+                    <modelPackage>com.example.itemapi.model</modelPackage>
+                    <!-- Invoker package name -->
+                    <invokerPackage>com.example.itemapi.handler</invokerPackage>
+                    <modelNameSuffix>DTO</modelNameSuffix>
+                    <!-- Additional properties -->
+                    <typeMappings>
+                        <typeMapping>DateTime=java.time.OffsetDateTime</typeMapping>
+                    </typeMappings>
+                    <importMappings>
+                        <importMapping>java.time.OffsetDateTime=java.time.OffsetDateTime</importMapping>
+                    </importMappings>
+                    <skipValidateSpec>false</skipValidateSpec>
+                    <generateSupportingFiles>false</generateSupportingFiles>
+                    <skipOverwrite>false</skipOverwrite>
+
+                    <!-- Additional properties -->
+                    <configOptions>
+                        <!-- Use Spring Boot 3 -->
+                        <useSpringBoot3>true</useSpringBoot3>
+                        <!-- Use Jakarta EE instead of javax -->
+                        <useJakartaEe>true</useJakartaEe>
+                        <!-- Generate only interfaces (no implementation) -->
+                        <interfaceOnly>true</interfaceOnly>
+                        <!-- Skip default interface methods -->
+                        <skipDefaultInterface>true</skipDefaultInterface>
+                        <!-- Use tags for controller class names -->
+                        <useTags>true</useTags>
+                        <!-- Generate Spring documentation -->
+                        <documentationProvider>springdoc</documentationProvider>
+                        <!-- Use Optional for optional parameters -->
+                        <useOptional>true</useOptional>
+                        <!-- Generate Bean Validation annotations -->
+                        <useBeanValidation>true</useBeanValidation>
+                        <!-- Perform Bean Validation -->
+                        <performBeanValidation>true</performBeanValidation>
+                        <!-- Hide generation timestamp -->
+                        <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                        <!-- Remove prefix from enum names -->
+                        <removeEnumValuePrefix>false</removeEnumValuePrefix>
+                    </configOptions>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>generate-error</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>api-spec/open-api-error-spec.yaml</inputSpec>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate-item</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>api-spec/open-api-item-spec.yaml</inputSpec>
+                        </configuration>
+                    </execution>
+
+                </executions>
             </plugin>
         </plugins>
     </build>

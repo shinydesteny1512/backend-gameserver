@@ -1,0 +1,345 @@
+openapi: 3.1.0
+info:
+  title: Item API
+  description: A simple API for managing items
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+servers:
+  - url: https://localhost:9071/v1
+    description: Local server
+  - url: https://https://backend-gameserver-five.vercel.app/v1
+    description: Production server
+
+paths:
+  /items:
+    post:
+      summary: Create new item
+      description: Creates a new item with the provided data
+      operationId: createItem
+      tags:
+        - Items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemCreateRequest'
+            example:
+              name: "Example Item"
+              description: "This is an example item"
+              category: "electronics"
+              price: 29.99
+      responses:
+        '201':
+          description: Item successfully created
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uuid
+              example:
+                id: "123e4567-e89b-12d3-a456-426614174000"
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+
+    get:
+      summary: Get all items
+      description: Retrieves a list of all items with optional filtering and pagination
+      operationId: getItems
+      tags:
+        - Items
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of items to skip (for pagination)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: category
+          in: query
+          description: Filter items by category
+          required: false
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search for items based on name or description
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of items successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              example:
+                items:
+                  - id: "123e4567-e89b-12d3-a456-426614174000"
+                    name: "Laptop"
+                    description: "Gaming Laptop"
+                    category: "electronics"
+                    price: 999.99
+                    createdAt: "2024-01-15T10:30:00Z"
+                    updatedAt: "2024-01-15T10:30:00Z"
+                  - id: "456e7890-e12b-34d5-b678-901234567890"
+                    name: "Smartphone"
+                    description: "Latest smartphone"
+                    category: "electronics"
+                    price: 699.99
+                    createdAt: "2024-01-14T15:20:00Z"
+                    updatedAt: "2024-01-14T15:20:00Z"
+                pagination:
+                  total: 150
+                  limit: 20
+                  offset: 0
+                  hasNext: true
+                  hasPrevious: false
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+
+  /items/{itemId}:
+    get:
+      summary: Get single item
+      description: Retrieves a specific item by its ID
+      operationId: getItemById
+      tags:
+        - Items
+      parameters:
+        - name: itemId
+          in: path
+          description: Unique ID of the item
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Item successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+              example:
+                id: "123e4567-e89b-12d3-a456-426614174000"
+                name: "Laptop"
+                description: "Gaming Laptop"
+                category: "electronics"
+                price: 999.99
+                createdAt: "2024-01-15T10:30:00Z"
+                updatedAt: "2024-01-15T10:30:00Z"
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+        '400':
+          description: Invalid item ID
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+
+    delete:
+      summary: Delete item
+      description: Deletes a specific item by its ID
+      operationId: deleteItem
+      tags:
+        - Items
+      parameters:
+        - name: itemId
+          in: path
+          description: Unique ID of the item to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Item successfully deleted
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+        '400':
+          description: Invalid item ID
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+
+components:
+  schemas:
+    Item:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - category
+        - price
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the item
+          examples: ["123e4567-e89b-12d3-a456-426614174000"]
+        name:
+          type: string
+          description: Name of the item
+          minLength: 1
+          maxLength: 255
+          examples: ["Magical Sword of the Church"]
+        description:
+          type: string
+          description: Description of the item
+          maxLength: 255
+          examples: ["A Sword of a Church Fighter"]
+        category:
+          type: string
+          description: Category of the item
+          enum: ["weapon", "armor", "accessories", "consumable", "other"]
+          examples: ["weapon"]
+        price:
+          type: number
+          format: double
+          description: Price of the item in gold
+          minimum: 0
+          examples: [999]
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          examples: ["2024-01-15T10:30:00Z"]
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          examples: ["2024-01-15T10:30:00Z"]
+
+    ItemCreateRequest:
+      type: object
+      required:
+        - name
+        - description
+        - category
+        - price
+      properties:
+        name:
+          type: string
+          description: Name of the item
+          minLength: 1
+          maxLength: 255
+          examples: ["Magical Sword of the Church"]
+        description:
+          type: string
+          description: Description of the item
+          maxLength: 255
+          examples: ["A Sword of a Church Fighter"]
+        category:
+          type: string
+          description: Category of the item
+          enum: ["weapon", "armor", "accessories", "consumable", "other"]
+          examples: ["weapon"]
+        price:
+          type: number
+          format: double
+          description: Price of the item in gold
+          minimum: 0
+          examples: [999]
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of available items
+          examples: [150]
+        limit:
+          type: integer
+          description: Maximum number of returned items
+          examples: [20]
+        offset:
+          type: integer
+          description: Number of skipped items
+          examples: [0]
+        hasNext:
+          type: boolean
+          description: Indicates if more items are available
+          examples: [true]
+        hasPrevious:
+          type: boolean
+          description: Indicates if previous items are available
+          examples: [false]
+
+#  securitySchemes:
+#    bearerAuth:
+#      type: http
+#      scheme: bearer
+#      bearerFormat: JWT
+#      description: JWT Bearer Token for authentication
+#
+#security:
+#  - bearerAuth: []
+#
+#tags:
+#  - name: Items
+#    description: Operations for managing items

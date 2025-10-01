@@ -1,0 +1,23 @@
+package de.frees.backendgameserver.model;
+
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.MongoId;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+public class ItemEntity {
+
+  @MongoId private UUID uuid;
+
+  private String itemName;
+
+  private String description;
+
+  private Double price;
+
+  private String category;
+}
