@@ -1,9 +1,10 @@
 package de.frees.backendgameserver.model;
 
-import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.time.Instant;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "items")
@@ -12,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 public class ItemEntity {
 
-  private UUID itemId;
+  @Id private String itemId;
 
   private String itemName;
 
@@ -21,4 +22,8 @@ public class ItemEntity {
   private Double price;
 
   private String category;
+
+  @CreatedDate private Instant createdAt;
+
+  @LastModifiedDate private Instant updatedAt;
 }

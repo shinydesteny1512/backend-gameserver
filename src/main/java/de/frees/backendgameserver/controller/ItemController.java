@@ -2,13 +2,9 @@ package de.frees.backendgameserver.controller;
 
 import com.example.itemapi.api.ItemApi;
 import com.example.itemapi.api.ItemsApi;
-import com.example.itemapi.model.GetItems200ResponseDTO;
-import com.example.itemapi.model.ItemCreateRequestDTO;
-import com.example.itemapi.model.ItemDTO;
+import com.example.itemapi.model.ItemOv1DTO;
+import com.example.itemapi.model.ItemPageOv1DTO;
 import de.frees.backendgameserver.service.ItemService;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,10 +22,10 @@ public class ItemController implements ItemApi, ItemsApi {
   }
 
   @Override
-  public ResponseEntity<UUID> createItem(ItemCreateRequestDTO itemCreateRequestDTO) {
+  public ResponseEntity<String> createItem(ItemOv1DTO itemOv1DTO) {
     log.info("Starting Create Item");
-    log.debug("Starting Create Item with following information : '{}'", itemCreateRequestDTO);
-    UUID id = itemService.createItem(itemCreateRequestDTO);
+    log.debug("Starting Create Item with following information : '{}'", itemOv1DTO);
+    String id = itemService.createItem(itemOv1DTO);
     return ResponseEntity.ok().body(id);
   }
 
@@ -39,18 +35,16 @@ public class ItemController implements ItemApi, ItemsApi {
   }
 
   @Override
-  public ResponseEntity<ItemDTO> getItemById(UUID itemId) {
+  public ResponseEntity<ItemOv1DTO> getItemById(UUID itemId) {
     return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
   }
 
   @Override
-  public ResponseEntity<GetItems200ResponseDTO> getItems(
-      Optional<Integer> limit,
-      Optional<Integer> offset,
-      Optional<String> category,
-      Optional<String> search) {
-    return ResponseEntity
-            .status(HttpStatus.NOT_IMPLEMENTED)
-            .build();
+  public ResponseEntity<ItemPageOv1DTO> getItems(
+      Integer limit, Integer offset, String category, String search) {
+
+    ItemPageOv1DTO itemPageOv1DTO = itemService.findAllItems(limit, offset);
+
+    return ResponseEntity.ok().body(itemPageOv1DTO);
   }
 }

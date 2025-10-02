@@ -18,6 +18,7 @@
         <java.version>21</java.version>
         <maven.compiler.target>21</maven.compiler.target>
         <openapi-generator-maven-plugin.version>7.2.0</openapi-generator-maven-plugin.version>
+        <lombok.version>1.18.42</lombok.version>
     </properties>
 
     <dependencies>
@@ -26,21 +27,9 @@
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>1.6.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>1.6.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.42</version>
-            <scope>provided</scope>
+            <version>${lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -154,6 +143,7 @@
                         <hideGenerationTimestamp>true</hideGenerationTimestamp>
                         <!-- Remove prefix from enum names -->
                         <removeEnumValuePrefix>false</removeEnumValuePrefix>
+                        <useOptional>false</useOptional>
                     </configOptions>
                 </configuration>
 
