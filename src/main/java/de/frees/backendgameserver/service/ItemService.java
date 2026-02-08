@@ -26,7 +26,8 @@ public class ItemService {
   }
 
   public ItemPageOv1DTO findAllItems(int limit, int offset) {
-    PageRequest pageRequest = PageRequest.of(offset, limit);
+    int page = offset / limit;
+    PageRequest pageRequest = PageRequest.of(page, limit);
     List<ItemEntity> itemEntityList = itemRepository.findAll(pageRequest).getContent();
     ItemPageOv1DTO itemPageDTO = new ItemPageOv1DTO();
     itemPageDTO.setContent(
