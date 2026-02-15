@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -50,6 +51,19 @@ public class GlobalExceptionHandler {
             : List.of("Expected type: " + ex.getRequiredType().getSimpleName());
     return buildError(
         HttpStatus.BAD_REQUEST, CODE_VALIDATION_ERROR, message, request, details);
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ErrorDTO> handleNotReadable(
+      HttpMessageNotReadableException ex, HttpServletRequest request) {
+    String detail = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : "";
+    List<String> details = detail.isBlank() ? List.of() : List.of(detail);
+    return buildError(
+        HttpStatus.BAD_REQUEST,
+        CODE_VALIDATION_ERROR,
+        "Malformed JSON request",
+        request,
+        details);
   }
 
   @ExceptionHandler(Exception.class)

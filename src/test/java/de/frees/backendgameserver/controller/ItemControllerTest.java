@@ -5,6 +5,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -65,5 +67,39 @@ class ItemControllerTest {
     doNothing().when(itemService).deleteById(id);
 
     mockMvc.perform(delete("/item/{itemId}", id)).andExpect(status().isNoContent());
+  }
+
+  @Test
+  void createItem_malformedJson_returnsBadRequest() throws Exception {
+    mockMvc
+        .perform(
+            post("/item")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{invalid-json"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.message").value("Malformed JSON request"))
+        .andExpect(jsonPath("$.details").isArray());
+  }
+
+  @Test
+  void createItem_invalidEnum_returnsBadRequest() throws Exception {
+    mockMvc
+        .perform(
+            post("/item")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                      "itemName": "Bad Item",
+                      "description": "Invalid category",
+                      "category": "invalid-category",
+                      "price": 10
+                    }
+                    """))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.message").value("Malformed JSON request"))
+        .andExpect(jsonPath("$.details").isArray());
   }
 }
