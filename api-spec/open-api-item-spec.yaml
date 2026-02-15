@@ -218,11 +218,6 @@ components:
   schemas:
     ItemOv1:
       type: object
-      #      required:
-      #        - name
-      #        - description
-      #        - category
-      #        - price
       properties:
         itemId:
           type: string

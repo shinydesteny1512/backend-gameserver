@@ -3,6 +3,7 @@ package de.frees.backendgameserver.service;
 import com.example.itemapi.model.ItemOv1DTO;
 import com.example.itemapi.model.ItemPageOv1DTO;
 import de.frees.backendgameserver.Repository.ItemRepository;
+import de.frees.backendgameserver.exception.ItemNotFoundException;
 import de.frees.backendgameserver.mapper.ItemMapper;
 import de.frees.backendgameserver.model.ItemEntity;
 import java.util.List;
@@ -30,22 +31,39 @@ public class ItemService {
     List<ItemEntity> itemEntityList = itemRepository.findAll(pageRequest).getContent();
     ItemPageOv1DTO itemPageDTO = new ItemPageOv1DTO();
     itemPageDTO.setContent(
-        itemEntityList.stream().map(itemMapper::itemEntityToItemDTO).collect(Collectors.toList()));
+        itemEntityList.stream().map(itemMapper::mapFromEntityToDto).collect(Collectors.toList()));
     itemPageDTO.setLimit(limit);
     itemPageDTO.setOffset(offset);
     itemPageDTO.setTotal(itemEntityList.size());
     return itemPageDTO;
   }
 
+  public ItemOv1DTO findById(UUID id) {
+    log.info("Find Item by ID {}", id);
+    ItemEntity itemEntity =
+        itemRepository
+            .findByItemId(id.toString())
+            .orElseThrow(() -> new ItemNotFoundException(id));
+    return itemMapper.mapFromEntityToDto(itemEntity);
+  }
+
   public String createItem(ItemOv1DTO itemDTO) {
     log.info("Creating Item");
-    UUID uuid = UUID.randomUUID();
-
-    ItemEntity itemEntity = itemMapper.itemDTOToItemEntity(itemDTO);
-    itemEntity.setItemId(uuid.toString());
+    ItemEntity itemEntity = itemMapper.mapFromDtoToEntity(itemDTO);
+    itemEntity.setItemId(UUID.randomUUID().toString());
 
     itemRepository.save(itemEntity);
     log.info("Item created with id: '{}'", itemEntity.getItemId());
     return itemEntity.getItemId();
+  }
+
+  public void deleteById(UUID id) {
+    log.info("Delete Item by ID {}", id);
+    String itemId = id.toString();
+    boolean exists = itemRepository.existsByItemId(itemId);
+    if (!exists) {
+      throw new ItemNotFoundException(id);
+    }
+    itemRepository.deleteByItemId(itemId);
   }
 }

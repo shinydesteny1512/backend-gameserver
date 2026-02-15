@@ -7,7 +7,6 @@ import com.example.itemapi.model.ItemPageOv1DTO;
 import de.frees.backendgameserver.service.ItemService;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,20 +30,19 @@ public class ItemController implements ItemApi, ItemsApi {
 
   @Override
   public ResponseEntity<Void> deleteItem(UUID itemId) {
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    itemService.deleteById(itemId);
+    return ResponseEntity.noContent().build();
   }
 
   @Override
   public ResponseEntity<ItemOv1DTO> getItemById(UUID itemId) {
-    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    return ResponseEntity.ok(itemService.findById(itemId));
   }
 
   @Override
   public ResponseEntity<ItemPageOv1DTO> getItems(
       Integer limit, Integer offset, String category, String search) {
-
     ItemPageOv1DTO itemPageOv1DTO = itemService.findAllItems(limit, offset);
-
-    return ResponseEntity.ok().body(itemPageOv1DTO);
+    return ResponseEntity.ok(itemPageOv1DTO);
   }
 }
