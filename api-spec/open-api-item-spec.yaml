@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Item API
-  description: A simple API for managing items
+  description: API for managing game items.
   version: 1.0.0
   contact:
     name: API Support
@@ -16,7 +16,7 @@ paths:
   /items:
     get:
       summary: Get all items
-      description: Retrieves a list of all items with optional filtering and pagination
+      description: Retrieves a paginated list of items.
       operationId: getItems
       tags:
         - Items
@@ -28,6 +28,8 @@ paths:
           schema:
             type: integer
             default: 25
+            minimum: 1
+            maximum: 100
         - name: offset
           in: query
           description: Number of items to skip (for pagination)
@@ -35,18 +37,7 @@ paths:
           schema:
             type: integer
             default: 0
-        - name: category
-          in: query
-          description: Filter items by category
-          required: false
-          schema:
-            type: string
-        - name: search
-          in: query
-          description: Search for items based on name or description
-          required: false
-          schema:
-            type: string
+            minimum: 0
       responses:
         '200':
           description: List of items successfully retrieved
@@ -55,27 +46,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/ItemPageOv1'
               example:
-                items:
-                  - id: "123e4567-e89b-12d3-a456-426614174000"
-                    name: "Laptop"
-                    description: "Gaming Laptop"
-                    category: "electronics"
+                content:
+                  - itemId: "123e4567-e89b-12d3-a456-426614174000"
+                    itemName: "Iron Sword"
+                    description: "A reliable starter weapon."
+                    category: "weapon"
                     price: 999.99
                     createdAt: "2024-01-15T10:30:00Z"
                     updatedAt: "2024-01-15T10:30:00Z"
-                  - id: "456e7890-e12b-34d5-b678-901234567890"
-                    name: "Smartphone"
-                    description: "Latest smartphone"
-                    category: "electronics"
+                  - itemId: "456e7890-e12b-34d5-b678-901234567890"
+                    itemName: "Health Potion"
+                    description: "Restores a small amount of health."
+                    category: "consumable"
                     price: 699.99
                     createdAt: "2024-01-14T15:20:00Z"
                     updatedAt: "2024-01-14T15:20:00Z"
-                pagination:
-                  total: 150
-                  limit: 20
-                  offset: 0
-                  hasNext: true
-                  hasPrevious: false
+                total: 150
+                limit: 20
+                offset: 0
+                hasNext: true
+                hasPrevious: false
         '400':
           description: Invalid query parameters
           content:
@@ -92,10 +82,10 @@ paths:
   /item:
     post:
       summary: Create new item
-      description: Creates a new item with the provided data
+      description: Creates a new item with the provided data.
       operationId: createItem
       tags:
-        - Item
+        - Items
       requestBody:
         required: true
         content:
@@ -103,9 +93,9 @@ paths:
             schema:
               $ref: '#/components/schemas/ItemOv1'
             example:
-              name: "Example Item"
-              description: "This is an example item"
-              category: "electronics"
+              itemName: "Iron Sword"
+              description: "A reliable starter weapon."
+              category: "weapon"
               price: 29.99
       responses:
         '201':
@@ -114,8 +104,9 @@ paths:
             application/json:
               schema:
                 type: string
-              example:
-                id: "123e4567-e89b-12d3-a456-426614174000"
+                format: uuid
+                nullable: false
+              example: "123e4567-e89b-12d3-a456-426614174000"
         '400':
           description: Invalid input data
           content:
@@ -132,10 +123,10 @@ paths:
   /item/{itemId}:
     get:
       summary: Get single item
-      description: Retrieves a specific item by its ID
+      description: Retrieves a specific item by its ID.
       operationId: getItemById
       tags:
-        - Item
+        - Items
       parameters:
         - name: itemId
           in: path
@@ -152,10 +143,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ItemOv1'
               example:
-                id: "123e4567-e89b-12d3-a456-426614174000"
-                name: "Laptop"
-                description: "Gaming Laptop"
-                category: "electronics"
+                itemId: "123e4567-e89b-12d3-a456-426614174000"
+                itemName: "Iron Sword"
+                description: "A reliable starter weapon."
+                category: "weapon"
                 price: 999.99
                 createdAt: "2024-01-15T10:30:00Z"
                 updatedAt: "2024-01-15T10:30:00Z"
@@ -178,9 +169,60 @@ paths:
               schema:
                 $ref: './open-api-error-spec.yaml#/components/schemas/Error'
 
+    put:
+      summary: Update item
+      description: Updates an existing item by its ID.
+      operationId: updateItem
+      tags:
+        - Items
+      parameters:
+        - name: itemId
+          in: path
+          description: Unique ID of the item to update
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemOv1'
+            example:
+              itemName: "Steel Sword"
+              description: "A stronger sword for experienced fighters."
+              category: "weapon"
+              price: 1499.99
+      responses:
+        '200':
+          description: Item successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemOv1'
+        '400':
+          description: Invalid input data or item ID
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './open-api-error-spec.yaml#/components/schemas/Error'
+
     delete:
       summary: Delete item
-      description: Deletes a specific item by its ID
+      description: Deletes a specific item by its ID.
       operationId: deleteItem
       tags:
         - Items
@@ -193,8 +235,15 @@ paths:
             type: string
             format: uuid
       responses:
-        '204':
+        '200':
           description: Item successfully deleted
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uuid
+                nullable: false
+              example: "123e4567-e89b-12d3-a456-426614174000"
         '404':
           description: Item not found
           content:
@@ -218,73 +267,99 @@ components:
   schemas:
     ItemOv1:
       type: object
-      #      required:
-      #        - name
-      #        - description
-      #        - category
-      #        - price
+      required:
+        - itemId
+        - itemName
+        - category
+        - price
+        - createdAt
+        - updatedAt
       properties:
         itemId:
           type: string
           description: Unique identifier of the item
-          example: [ "123e4567-e89b-12d3-a456-426614174000" ]
+          format: uuid
+          readOnly: true
+          nullable: false
+          example: "123e4567-e89b-12d3-a456-426614174000"
         itemName:
           type: string
           description: Name of the item
           minLength: 1
           maxLength: 255
-          example: [ "Magical Sword of the Church" ]
+          nullable: false
+          example: "Magical Sword of the Church"
         description:
           type: string
           description: Description of the item
           maxLength: 255
-          example: [ "A Sword of a Church Fighter" ]
+          nullable: false
+          example: "A sword carried by a church fighter."
         category:
           type: string
           description: Category of the item
           enum: [ "weapon", "armor", "accessories", "consumable", "other" ]
-          example: [ "weapon" ]
+          nullable: false
+          example: "weapon"
         price:
           type: number
           format: double
           description: Price of the item in gold
           minimum: 0
-          example: [ 999 ]
+          nullable: false
+          example: 999
         createdAt:
           type: string
           format: date-time
           description: Creation timestamp
-          example: [ "2024-01-15T10:30:00Z" ]
+          readOnly: true
+          nullable: false
+          example: "2024-01-15T10:30:00Z"
         updatedAt:
           type: string
           format: date-time
           description: Last update timestamp
-          example: [ "2024-01-15T10:30:00Z" ]
+          readOnly: true
+          nullable: false
+          example: "2024-01-15T10:30:00Z"
 
     ItemPageOv1:
       type: object
+      required:
+        - content
+        - total
+        - limit
+        - offset
+        - hasNext
+        - hasPrevious
       properties:
         content:
           type: array
+          nullable: false
           items:
             $ref: "#/components/schemas/ItemOv1"
         total:
           type: integer
           description: Total number of available items
-          example: [ 150 ]
+          nullable: false
+          example: 150
         limit:
           type: integer
           description: Maximum number of returned items
-          example: [ 20 ]
+          nullable: false
+          example: 20
         offset:
           type: integer
           description: Number of skipped items
-          example: [ 0 ]
+          nullable: false
+          example: 0
         hasNext:
           type: boolean
           description: Indicates if more items are available
-          example: [ true ]
+          nullable: false
+          example: true
         hasPrevious:
           type: boolean
           description: Indicates if previous items are available
-          example: [ false ]
+          nullable: false
+          example: false

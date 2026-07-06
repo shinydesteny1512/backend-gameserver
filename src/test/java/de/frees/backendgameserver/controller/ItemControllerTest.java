@@ -1,0 +1,103 @@
+package de.frees.backendgameserver.controller;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import de.frees.backendgameserver.exception.handler.GlobalExceptionHandler;
+import de.frees.backendgameserver.exception.objects.ItemNotFoundException;
+import de.frees.backendgameserver.service.ItemService;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+@WebMvcTest(ItemController.class)
+@Import(GlobalExceptionHandler.class)
+class ItemControllerTest {
+
+  @Autowired private MockMvc mockMvc;
+
+  @MockitoBean private ItemService itemService;
+
+  @Test
+  void getItemById_returnsNotFound() throws Exception {
+    UUID id = UUID.randomUUID();
+    when(itemService.findById(id)).thenThrow(new ItemNotFoundException(id));
+
+    mockMvc
+        .perform(get("/item/{itemId}", id))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Item not found: " + id));
+  }
+
+  @Test
+  void deleteItem_returnsNotFound() throws Exception {
+    UUID id = UUID.randomUUID();
+    when(itemService.deleteById(id)).thenThrow(new ItemNotFoundException(id));
+
+    mockMvc
+        .perform(delete("/item/{itemId}", id))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Item not found: " + id));
+  }
+
+  @Test
+  void getItemById_invalidUuid_returnsBadRequest() throws Exception {
+    mockMvc
+        .perform(get("/item/{itemId}", "not-a-uuid"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+  }
+
+  @Test
+  void deleteItem_returnsDeletedItemId() throws Exception {
+    UUID id = UUID.randomUUID();
+    when(itemService.deleteById(id)).thenReturn(id);
+
+    mockMvc
+        .perform(delete("/item/{itemId}", id))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(id.toString()));
+  }
+
+  @Test
+  void createItem_malformedJson_returnsBadRequest() throws Exception {
+    mockMvc
+        .perform(post("/item").contentType(MediaType.APPLICATION_JSON).content("{invalid-json"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.message").value("Malformed JSON request"))
+        .andExpect(jsonPath("$.details").isArray());
+  }
+
+  @Test
+  void createItem_invalidEnum_returnsBadRequest() throws Exception {
+    mockMvc
+        .perform(
+            post("/item")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                      "itemName": "Bad Item",
+                      "description": "Invalid category",
+                      "category": "invalid-category",
+                      "price": 10
+                    }
+                    """))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.message").value("Malformed JSON request"))
+        .andExpect(jsonPath("$.details").isArray());
+  }
+}

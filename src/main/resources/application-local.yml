@@ -1,2 +1,7 @@
 server:
   port: 9071
+
+spring:
+  mongodb:
+    database: backend-gameserver
+    uri: mongodb://localhost:27017/backend-gameserver

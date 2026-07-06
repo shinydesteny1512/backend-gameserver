@@ -35,3 +35,8 @@ build/
 
 ### Own Code ###
 HTTPs/
+.http
+
+### Wierd Stuff ###
+.agents
+/HTTPs/
