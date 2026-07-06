@@ -2,15 +2,15 @@ package de.frees.backendgameserver.service;
 
 import com.example.itemapi.model.ItemOv1DTO;
 import com.example.itemapi.model.ItemPageOv1DTO;
-import de.frees.backendgameserver.Repository.ItemRepository;
-import de.frees.backendgameserver.exception.ItemNotFoundException;
+import de.frees.backendgameserver.exception.objects.ItemNotFoundException;
 import de.frees.backendgameserver.mapper.ItemMapper;
 import de.frees.backendgameserver.model.ItemEntity;
-import java.util.List;
+import de.frees.backendgameserver.repository.ItemRepository;
+import de.frees.backendgameserver.repository.OffsetBasedPageRequest;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -26,18 +26,28 @@ public class ItemService {
     this.itemRepository = itemRepository;
   }
 
+  @NonNull
   public ItemPageOv1DTO findAllItems(int limit, int offset) {
-    PageRequest pageRequest = PageRequest.of(offset, limit);
-    List<ItemEntity> itemEntityList = itemRepository.findAll(pageRequest).getContent();
+    if (limit < 1 || limit > 100) {
+      throw new IllegalArgumentException("Limit must be between 1 and 100");
+    }
+    if (offset < 0) {
+      throw new IllegalArgumentException("Offset must be greater than or equal to 0");
+    }
+
+    Page<ItemEntity> itemPage = itemRepository.findAll(new OffsetBasedPageRequest(limit, offset));
     ItemPageOv1DTO itemPageDTO = new ItemPageOv1DTO();
     itemPageDTO.setContent(
-        itemEntityList.stream().map(itemMapper::mapFromEntityToDto).collect(Collectors.toList()));
+        itemPage.getContent().stream().map(itemMapper::mapFromEntityToDto).toList());
     itemPageDTO.setLimit(limit);
     itemPageDTO.setOffset(offset);
-    itemPageDTO.setTotal(itemEntityList.size());
+    itemPageDTO.setTotal((int) itemPage.getTotalElements());
+    itemPageDTO.setHasNext(itemPage.hasNext());
+    itemPageDTO.setHasPrevious(offset > 0);
     return itemPageDTO;
   }
 
+  @NonNull
   public ItemOv1DTO findById(UUID id) {
     log.info("Find Item by ID {}", id);
     ItemEntity itemEntity =
@@ -47,17 +57,38 @@ public class ItemService {
     return itemMapper.mapFromEntityToDto(itemEntity);
   }
 
-  public String createItem(ItemOv1DTO itemDTO) {
+  @NonNull
+  public UUID createItem(ItemOv1DTO itemDTO) {
     log.info("Creating Item");
+    UUID itemId = UUID.randomUUID();
     ItemEntity itemEntity = itemMapper.mapFromDtoToEntity(itemDTO);
-    itemEntity.setItemId(UUID.randomUUID().toString());
+    itemEntity.setItemId(itemId.toString());
 
     itemRepository.save(itemEntity);
     log.info("Item created with id: '{}'", itemEntity.getItemId());
-    return itemEntity.getItemId();
+
+    return itemId;
   }
 
-  public void deleteById(UUID id) {
+  @NonNull
+  public ItemOv1DTO updateItem(UUID id, ItemOv1DTO itemDTO) {
+    log.info("Update Item by ID {}", id);
+    ItemEntity existingItem =
+        itemRepository
+            .findByItemId(id.toString())
+            .orElseThrow(() -> new ItemNotFoundException(id));
+
+    ItemEntity updatedItem = itemMapper.mapFromDtoToEntity(itemDTO);
+    updatedItem.setId(existingItem.getId());
+    updatedItem.setItemId(existingItem.getItemId());
+    updatedItem.setCreatedAt(existingItem.getCreatedAt());
+
+    ItemEntity savedItem = itemRepository.save(updatedItem);
+    return itemMapper.mapFromEntityToDto(savedItem);
+  }
+
+  @NonNull
+  public UUID deleteById(UUID id) {
     log.info("Delete Item by ID {}", id);
     String itemId = id.toString();
     boolean exists = itemRepository.existsByItemId(itemId);
@@ -65,5 +96,7 @@ public class ItemService {
       throw new ItemNotFoundException(id);
     }
     itemRepository.deleteByItemId(itemId);
+
+    return id;
   }
 }

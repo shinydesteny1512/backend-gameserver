@@ -1,4 +1,4 @@
-package de.frees.backendgameserver.exception;
+package de.frees.backendgameserver.exception.objects;
 
 import java.util.UUID;
 

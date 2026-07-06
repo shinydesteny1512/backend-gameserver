@@ -1,7 +1,7 @@
-package de.frees.backendgameserver.error;
+package de.frees.backendgameserver.exception.handler;
 
 import com.example.itemapi.model.ErrorDTO;
-import de.frees.backendgameserver.exception.ItemNotFoundException;
+import de.frees.backendgameserver.exception.objects.ItemNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -64,6 +64,13 @@ public class GlobalExceptionHandler {
         "Malformed JSON request",
         request,
         details);
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorDTO> handleIllegalArgument(
+      IllegalArgumentException ex, HttpServletRequest request) {
+    return buildError(
+        HttpStatus.BAD_REQUEST, CODE_VALIDATION_ERROR, ex.getMessage(), request, null);
   }
 
   @ExceptionHandler(Exception.class)

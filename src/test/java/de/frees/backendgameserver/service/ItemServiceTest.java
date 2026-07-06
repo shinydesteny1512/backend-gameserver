@@ -1,11 +1,12 @@
 package de.frees.backendgameserver.service;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import de.frees.backendgameserver.Repository.ItemRepository;
-import de.frees.backendgameserver.exception.ItemNotFoundException;
+import de.frees.backendgameserver.repository.ItemRepository;
+import de.frees.backendgameserver.exception.objects.ItemNotFoundException;
 import de.frees.backendgameserver.mapper.ItemMapper;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -32,12 +33,13 @@ class ItemServiceTest {
   }
 
   @Test
-  void deleteById_existing_deletes() {
+  void deleteById_existing_deletesAndReturnsDeletedId() {
     UUID id = UUID.randomUUID();
     when(itemRepository.existsByItemId(id.toString())).thenReturn(true);
 
-    itemService.deleteById(id);
+    UUID deletedId = itemService.deleteById(id);
 
+    assertThat(deletedId).isEqualTo(id);
     verify(itemRepository).deleteByItemId(id.toString());
   }
 }

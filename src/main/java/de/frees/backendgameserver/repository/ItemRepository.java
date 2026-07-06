@@ -1,4 +1,4 @@
-package de.frees.backendgameserver.Repository;
+package de.frees.backendgameserver.repository;
 
 import de.frees.backendgameserver.model.ItemEntity;
 import java.util.Optional;
